@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import Column from "./Column";
 import { TasksByColumn, Task } from "./types";
+import NewTaskDialog from "./NewTaskDialog";
+import { updateTaskStatus } from "@/lib/subspace/updateTaskStatus";
 import {
   DndContext,
   closestCorners,
@@ -90,10 +92,19 @@ export default function Board({ initialTasks = [] }: BoardProps) {
       [sourceColumnKey]: newSource,
       [destinationColumnKey]: newDestination,
     }));
+
+    updateTaskStatus(taskToMove.id, destinationColumnKey);
+  };
+
+  const refreshTasks = async () => {
+    setTasksByColumn((prev) => ({ ...prev }));
   };
 
   return (
     <DndContext sensors={sensors} collisionDetection={closestCorners} onDragEnd={handleDragEnd}>
+      <div className="p-4 flex justify-end">
+        <NewTaskDialog onTaskCreated={refreshTasks} />
+      </div>
       <div className="grid grid-cols-3 gap-6 p-4">
         <Column
           columnId="todo"
